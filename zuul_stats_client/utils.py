@@ -21,7 +21,8 @@ from typing import List
 def get_zuul_tenants(zuul_api_url: str) -> List[str]:
     zuul_tenants = json.loads(
         requests.get(
-            urllib.parse.urljoin(zuul_api_url, "tenants")).content)
+            urllib.parse.urljoin(
+                zuul_api_url.rstrip('/') + '/', "tenants")).content)
 
     return list(map(lambda x: x["name"], zuul_tenants))
 
