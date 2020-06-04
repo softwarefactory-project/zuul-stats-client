@@ -1,0 +1,8 @@
+ansi2html
+flake8
+mock
+pluggy
+py
+pytest
+pytest-cov
+pytest-html

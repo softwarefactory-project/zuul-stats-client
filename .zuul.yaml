@@ -1,0 +1,14 @@
+---
+- project:
+    name: software-factory/zuul-stats-client
+    check:
+      jobs: &jobs
+        - tox-pep8:
+            nodeset: fedora-latest-pod
+        - tox-py36:
+            nodeset: fedora-latest-pod
+    gate:
+      jobs: *jobs
+    release:
+      jobs:
+        - upload-pypi
