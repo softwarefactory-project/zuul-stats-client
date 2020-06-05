@@ -10,12 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import collections
 import json
 import re
 import requests
 import urllib.parse
 from time import time
-from typing import List
+from typing import Any, List
 
 
 def get_zuul_tenants(zuul_api_url: str) -> List[str]:
@@ -61,9 +62,12 @@ def filter_queues(queues, queue_name=None, project_regex=None):
     return found_queues
 
 
-def find_long_running_jobs(zuul_status, time_limit):
-    old_changes = []
-    old_time = int(time() * 1000) - time_limit
+Change = collections.namedtuple('Change', ['subchange', 'age', 'pipeline'])
+
+
+def get_changes_age(zuul_status: Any) -> List[Change]:
+    changes = []
+    now = time() * 1000
 
     pipelines = get_zuul_pipeline_list(zuul_status)
     for pipeline in pipelines:
@@ -71,8 +75,28 @@ def find_long_running_jobs(zuul_status, time_limit):
         for queue in queues:
             for change in queue['heads']:
                 for subchange in change:
-                    if int(subchange['enqueue_time']) < old_time:
-                        subchange['pipeline'] = pipeline
-                        old_changes.append(subchange)
+                    changes.append(Change(
+                        subchange,
+                        int(now - subchange['enqueue_time']),
+                        pipeline))
+    return changes
+
+
+def filter_long_running_jobs(
+        changes: List[Change], max_age: int) -> List[Change]:
+    return list(filter(lambda change: change.age > max_age, changes))
+
+
+def get_max_age(changes: List[Change]) -> int:
+    return max(map(lambda change: change.age, changes))
+
+
+def find_long_running_jobs(zuul_status, time_limit):
+    old_changes = []
+
+    for (change, age, pipeline) in get_changes_age(zuul_status):
+        if age > time_limit:
+            change['pipeline'] = pipeline
+            old_changes.append(change)
 
     return old_changes

@@ -42,6 +42,14 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(len(old_jobs), 21)
 
     @mock.patch('zuul_stats_client.utils.time', return_value=1591264534.0)
+    def test_get_changes(self, time_mock):
+        changes = utils.get_changes_age(self.zuul_status)
+        old_jobs = utils.filter_long_running_jobs(changes, 60 * 60000)
+        self.assertEqual(len(old_jobs), 21)
+        max_age = utils.get_max_age(changes)
+        self.assertEqual(max_age, 21333984)
+
+    @mock.patch('zuul_stats_client.utils.time', return_value=1591264534.0)
     def test_old_jobs_4h(self, time_mock):
         old_jobs = utils.find_long_running_jobs(self.zuul_status, 240 * 60000)
         self.assertEqual(len(old_jobs), 4)
