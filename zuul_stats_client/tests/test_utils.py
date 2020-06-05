@@ -49,6 +49,10 @@ class TestUtils(unittest.TestCase):
         max_age = utils.get_max_age(changes)
         self.assertEqual(max_age, 21333984)
 
+    def test_get_changes_empty(self):
+        max_age = utils.get_max_age([])
+        self.assertEqual(max_age, 0)
+
     @mock.patch('zuul_stats_client.utils.time', return_value=1591264534.0)
     def test_old_jobs_4h(self, time_mock):
         old_jobs = utils.find_long_running_jobs(self.zuul_status, 240 * 60000)
