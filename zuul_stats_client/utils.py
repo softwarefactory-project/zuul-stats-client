@@ -11,6 +11,7 @@
 # under the License.
 
 import collections
+import functools
 import json
 import re
 import requests
@@ -88,9 +89,7 @@ def filter_long_running_jobs(
 
 
 def get_max_age(changes: List[Change]) -> int:
-    if len(changes) == 0:
-        return 0
-    return max(map(lambda change: change.age, changes))
+    return functools.reduce(max, map(lambda change: change.age, changes), 0)
 
 
 def find_long_running_jobs(zuul_status, time_limit):
