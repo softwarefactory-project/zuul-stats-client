@@ -88,6 +88,8 @@ def filter_long_running_jobs(
 
 
 def get_max_age(changes: List[Change]) -> int:
+    if len(changes) == 0:
+        return 0
     return max(map(lambda change: change.age, changes))
 
 
