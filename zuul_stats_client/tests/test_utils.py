@@ -45,7 +45,7 @@ class TestUtils(unittest.TestCase):
     def test_get_changes(self, time_mock):
         changes = utils.get_changes_age(self.zuul_status)
         old_jobs = utils.filter_long_running_jobs(changes, 60 * 60000)
-        self.assertEqual(len(old_jobs), 21)
+        self.assertEqual(len(old_jobs), 8)
         max_age = utils.get_max_age(changes)
         self.assertEqual(max_age, 21333984)
 

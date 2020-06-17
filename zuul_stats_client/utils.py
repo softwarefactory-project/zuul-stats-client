@@ -83,9 +83,16 @@ def get_changes_age(zuul_status: Any) -> List[Change]:
     return changes
 
 
+def change_waiting(change: Change) -> bool:
+    return any(map(lambda job: not job.get('start_time', None),
+                   change.subchange['jobs']))
+
+
 def filter_long_running_jobs(
         changes: List[Change], max_age: int) -> List[Change]:
-    return list(filter(lambda change: change.age > max_age, changes))
+    return list(filter(lambda change: change.age > max_age,
+                       filter(change_waiting,
+                              changes)))
 
 
 def get_max_age(changes: List[Change]) -> int:
